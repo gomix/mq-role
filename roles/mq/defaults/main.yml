@@ -1,0 +1,28 @@
+---
+mqm_group:
+   name: mqm
+   gid: 501
+
+mqm_user:
+   name: mqm
+   uid: 501
+   group: mqm
+   home: /home/mqm
+   shell: /bin/bash
+   password: $6$cczZNuKi1h45wT5R$faKiOmMo6jZ1JnJ2cHdLEekrtdiV2U7mXs.CmaJistcR2kM1Rt6WrWt/ERNsWcqoMgI9jiIn1Y4vablA/jt9E.
+
+# sysctl dfault params
+fs_file_max: "524288"
+kernel_sem: "32 4096 32 128"
+kernel_shmmni: "4096"
+kernel_shmall: "2097152"
+kernel_shmmax: "268435456"
+net_ipv4_tcp_keepalive_intvl: "75"
+net_ipv4_tcp_keepalive_probes: "9"
+net_ipv4_tcp_keepalive_time: "7200"
+
+# mqm user limits
+mqm_hard_nofile: "10240"
+mqm_soft_nofile: "10240"
+mqm_hard_nproc:  "4096"
+mqm_soft_nproc:  "4096"

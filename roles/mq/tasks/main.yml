@@ -1,0 +1,10 @@
+---
+- debug:
+    msg: "{{ ansible_os_family }}"
+
+- import_tasks: redhat.yml
+  when: ansible_distribution | lower == 'redhat'
+
+- import_tasks: centos.yml
+  when: ansible_distribution | lower == 'centos'
+#

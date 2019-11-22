@@ -1,0 +1,5 @@
+---
+- hosts: mq_servers
+  become: yes
+  roles:
+    - mq

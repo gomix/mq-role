@@ -1,0 +1,11 @@
+---
+- hosts: mq_servers
+  become: yes
+  roles:
+    - mq
+
+      #To verify the installation, you must first install the samples package.
+
+      #Before beginning the verification procedure, you might want to check that 
+      #you have the latest fixes for your system. For more information about where 
+      #to find the latest updates, see Checking requirements on Linux. 

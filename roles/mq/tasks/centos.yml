@@ -1,0 +1,86 @@
+---
+- name: install deps packages
+  yum:
+    name: "{{ packages }}"
+  vars:
+    packages:
+    - bc
+
+- name: add mqm group
+  group:
+    name: "{{ mqm_group['name'] }}"
+    gid:  "{{ mqm_group['gid'] }}"
+    state: present
+
+- name: add mqm user
+  user:
+    name:  "{{ mqm_user['name'] }}"
+    uid:   "{{ mqm_user['uid'] }}"
+    group: "{{ mqm_user['group'] }}"
+    create_home: yes
+    home:  "{{ mqm_user['home'] }}"
+    shell: "{{ mqm_user['shell'] }}"
+    password: "{{ mqm_user['password'] }}"
+
+- name: kernel params
+  template:
+    src:  etc/sysctl.d/99-ibm_mq.conf.j2
+    dest: /etc/sysctl.d/99-ibm_mq.conf
+
+- sysctl:
+    name: fs.file-max 
+    value: "{{ fs_file_max }}"
+    sysctl_file: /etc/sysctl.d/99-ibm_mq.conf
+    reload: yes
+
+- name: mqm user security limits
+  template:
+    src:  etc/security/limits.d/99-ibm_mq.conf.j2
+    dest: /etc/security/limits.d/99-ibm_mq.conf
+
+- name: make systemd system.conf.d dir exists
+  file:
+    path: /etc/systemd/system.conf.d
+    state: directory
+    mode: '0755'
+
+- name: systemd configuration (I)
+  template:
+    src:  etc/systemd/system.conf.d/99-ibm_mq.conf.j2
+    dest: /etc/systemd/system.conf.d/99-ibm_mq.conf
+
+- name: make systemd user.conf.d dir exists
+  file:
+    path: /etc/systemd/user.conf.d
+    state: directory
+    mode: '0755'
+
+- name: systemd configuration (II)
+  template:
+    src:  etc/systemd/user.conf.d/99-ibm_mq.conf.j2
+    dest: /etc/systemd/user.conf.d/99-ibm_mq.conf
+
+- name: reload systemd configuration
+  systemd:
+    daemon_reload: yes
+
+- name: extract sources into the server
+  unarchive:
+    src: IBM_MQ_9.1_LINUX_X86-64_TRIAL.tar.gz
+    dest: /tmp
+    creates: /tmp/MQServer
+
+- name: accept license script 
+  shell:
+    cmd: ./mqlicense.sh -text_only -accept
+    chdir: /tmp/MQServer
+    creates: /tmp/mq_license_9.1.0
+
+- name: get list of rpms to install
+  shell: ls /tmp/MQServer/*rpm | xargs | sed -e "s/ /,/g"
+  register: command_output
+  
+- name: install rpms
+  yum:
+    name: "{{ command_output.stdout }}"
+    state: present
